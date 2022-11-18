@@ -13,8 +13,6 @@
  */
 package com.github.riskidentdms.spark.google.spreadsheets
 
-import com.github.riskidentdms.spark.google.spreadsheets.util.Credentials
-
 import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
 
