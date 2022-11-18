@@ -2,9 +2,9 @@ This library is implemented originally by Katsunori Kanda [potix2/spark-google-s
 
 The changes which were introduced in this fork:
 
-1. Usage OAuth 2.0 to access Google APIs
-2. Upgrade of Spark version to 3.1.1
-3. Miscellaneous code improvements 
+1. Usage OAuth 2.0 to access Google APIs;
+2. Upgrade Spark to version 3.1.1;
+3. Miscellaneous code improvements.
 
 # Spark Google Spreadsheets
 
@@ -18,8 +18,6 @@ Before you start using this library, please read the [Introduction to the Google
 to understand all basic concepts.
 
 ## Requirements
-
-This library supports different versions of Spark:
 
 ### Latest compatible versions
 
@@ -50,10 +48,10 @@ This library uses OAuth 2.0 to access Google APIs: [Using OAuth 2.0 to Access Go
 
 Please read this article in order to set up OAuth 2.0 in your Google Service Account: [Setting up OAuth 2.0](https://support.google.com/cloud/answer/6158849)
 
-It's recommended to use JSON Key type. 
-JSON file that contains the private key should be downloaded and stored securely because this key can't be recovered if lost.
+Keep in mind that you have to use the JSON key type, when you create a Service Account key.
+A JSON file that contains the private key should be downloaded and stored securely because this key can't be recovered if lost.
 
-There are two ways of providing authentication credentials to your application code namely: 
+There are two ways of providing authentication credentials to your application code namely:
 
 - by providing the path to the JSON file that contains private key described above
 
@@ -150,11 +148,8 @@ The spreadsheet ID you can find in the URL of the opened document. The pattern o
 
 `https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>`
 
-3. Provide Google API key. 
-As it's described above, you have to set up OAuth 2.0 in your Google Service Account: [Setting up OAuth 2.0](https://support.google.com/cloud/answer/6158849)
-When you create a Service Account key, please keep in mind that you have to use JSON Key type.
-JSON file that contains the private key should be downloaded and stored securely because this key can't be recovered if lost.
-Export the content of this JSON file as `OAUTH_JSON` environment variable.
+3. Export the JSON private key as `OAUTH_JSON` environment variable.
+Please see details [here](<#Using Google application credentials>).
 
 ## License
 
