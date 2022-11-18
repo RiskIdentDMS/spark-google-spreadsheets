@@ -1,3 +1,11 @@
+This library is implemented originally by Katsunori Kanda [potix2/spark-google-spreadsheets](https://github.com/potix2/spark-google-spreadsheets) and all benefits for it should be addressed to him.
+
+The changes which were introduced in this fork:
+
+1. Usage OAuth 2.0 to access Google APIs
+2. Upgrade of Spark version to 3.1.1
+3. Miscellaneous code improvements 
+
 # Spark Google Spreadsheets
 
 Google Spreadsheets datasource for [SparkSQL and DataFrames](http://spark.apache.org/docs/latest/sql-programming-guide.html)
@@ -6,11 +14,8 @@ Google Spreadsheets datasource for [SparkSQL and DataFrames](http://spark.apache
 
 ## Notice
 
-The version 0.4.0 breaks compatibility with previous versions. You must
-use a ** spreadsheetId ** to identify which spreadsheet is to be accessed or altered.
-In older versions, spreadsheet name was used.
-
-If you don't know spreadsheetId, please read the [Introduction to the Google Sheets API v4](https://developers.google.com/sheets/guides/concepts).
+Before you start using this library, please read the [Introduction to the Google Sheets API v4](https://developers.google.com/sheets/guides/concepts)
+to understand all basic concepts.
 
 ## Requirements
 
@@ -19,15 +24,15 @@ This library supports different versions of Spark:
 ### Latest compatible versions
 
 | This library | Spark Version |
-| ------------ | ------------- |
-| 0.1.x        | 3.1.1  |
+|--------------| ------------- |
+| 0.1.1        | 3.1.1  |
 
 ## Linking
 
 Using SBT:
 
 ```
-libraryDependencies += "com.github.riskidentdms" %% "spark-google-spreadsheets" % "0.1.0"
+libraryDependencies += "com.github.riskidentdms" %% "spark-google-spreadsheets" % "0.1.1"
 ```
 
 Using Maven:
@@ -36,27 +41,64 @@ Using Maven:
 <dependency>
   <groupId>com.github.riskidentdms</groupId>
   <artifactId>spark-google-spreadsheets_2.12</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
 </dependency>
 ```
 
-## SQL API
+## Using Google application credentials
+This library uses OAuth 2.0 to access Google APIs: [Using OAuth 2.0 to Access Google APIs](https://developers.google.com/identity/protocols/oauth2)
 
-TBD: Should be updated
+Please read this article in order to set up OAuth 2.0 in your Google Service Account: [Setting up OAuth 2.0](https://support.google.com/cloud/answer/6158849)
+
+It's recommended to use JSON Key type. 
+JSON file that contains the private key should be downloaded and stored securely because this key can't be recovered if lost.
+
+There are two ways of providing authentication credentials to your application code namely: 
+
+- by providing the path to the JSON file that contains private key described above
+
+```scala
+import com.github.riskidentdms.spark.google.spreadsheets.Credentials
+val credentials = Credentials.credentialsFromFile("path_to_key_json")
+```
+or by adding an input option for the underlying data source
+
+```scala
+.option("credentialsPath", "path_to_key_json")
+```
+
+```sql
+OPTIONS(credentialsPath "path_to_key_json")
+```
+
+- by providing JSON String that contains private key described above
+
+```scala
+import com.github.riskidentdms.spark.google.spreadsheets.Credentials
+Credentials.credentialsFromJsonString("json_string")
+```
+
+```scala
+.option("credentialsJson", "json_key")
+```
+
+```sql
+OPTIONS(credentialsJson 'json_key')
+```
+
+## Usage examples
+### SQL API
 
 ```sql
 CREATE TABLE cars
 USING com.github.riskidentdms.spark.google.spreadsheets
 OPTIONS (
     path "<spreadsheetId>/worksheet1",
-    serviceAccountId "xxxxxx@developer.gserviceaccount.com",
-    credentialPath "/path/to/credential.p12"
+    credentialsPath "path_to_key_json"
 )
 ```
 
-## Scala API
-
-TBD: Should be updated
+### Scala API
 
 ```scala
 import org.apache.spark.sql.SparkSession
@@ -68,46 +110,53 @@ val sqlContext = SparkSession.builder()
 
 // Creates a DataFrame from a specified worksheet
 val df = sqlContext.read.
-    format("com.github.riskidentdms.spark.google.spreadsheets").
-    option("serviceAccountId", "xxxxxx@developer.gserviceaccount.com").
-    option("credentialPath", "/path/to/credential.p12").
-    load("<spreadsheetId>/worksheet1")
+    format("com.github.riskidentdms.spark.google.spreadsheets")
+    .option("credentialsPath", "path_to_key_json")
+    .load("<spreadsheetId>/worksheet1")
 
 // Saves a DataFrame to a new worksheet
 df.write.
-    format("com.github.riskidentdms.spark.google.spreadsheets").
-    option("serviceAccountId", "xxxxxx@developer.gserviceaccount.com").
-    option("credentialPath", "/path/to/credential.p12").
-    save("<spreadsheetId>/newWorksheet")
+    format("com.github.riskidentdms.spark.google.spreadsheets")
+    .option("credentialsPath", "path_to_key_json")
+    .save("<spreadsheetId>/newWorksheet")
 
 ```
-
-### Using Google default application credentials
-TBD: Should be updated
-
-Provide authentication credentials to your application code by setting the environment variable 
-`GOOGLE_APPLICATION_CREDENTIALS`. The variable should be set to the path of the service account json file.
-
 
 ```scala
 import org.apache.spark.sql.SparkSession
 
 val sqlContext = SparkSession.builder()
-  .master("local[2]")
+  .master("local[*]")
   .appName("SpreadsheetSuite")
   .getOrCreate().sqlContext
 
 // Creates a DataFrame from a specified worksheet
-val df = sqlContext.read.
-    format("com.github.riskidentdms.spark.google.spreadsheets").
-    load("<spreadsheetId>/worksheet1")
+val df = sqlContext.read
+    .format("com.github.riskidentdms.spark.google.spreadsheets")
+    .option("credentialsPath", "path_to_key_json")
+    .load("<spreadsheetId>/worksheet1")
 ```
 
 More details: https://cloud.google.com/docs/authentication/production
 
-## License
+## Local testing
 
-Copyright 2016-2018, Katsunori Kanda
+You have to do some preparations in order to be able to run tests from your machine:
+
+1. Upload `files/SpreadsheetSuite.xlsx` to the [Google Spreadsheet](https://docs.google.com/spreadsheets).
+
+2. Export the spreadsheet ID of previously uploaded document as `TEST_SPREADSHEET_ID` environment variable.
+The spreadsheet ID you can find in the URL of the opened document. The pattern of the URL looks like that:
+
+`https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>`
+
+3. Provide Google API key. 
+As it's described above, you have to set up OAuth 2.0 in your Google Service Account: [Setting up OAuth 2.0](https://support.google.com/cloud/answer/6158849)
+When you create a Service Account key, please keep in mind that you have to use JSON Key type.
+JSON file that contains the private key should be downloaded and stored securely because this key can't be recovered if lost.
+Export the content of this JSON file as `OAUTH_JSON` environment variable.
+
+## License
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
