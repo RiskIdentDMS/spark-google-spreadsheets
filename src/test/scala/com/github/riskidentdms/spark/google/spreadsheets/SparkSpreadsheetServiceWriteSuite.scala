@@ -14,7 +14,6 @@
 package com.github.riskidentdms.spark.google.spreadsheets
 
 import SparkSpreadsheetService.SparkSpreadsheet
-import com.github.riskidentdms.spark.google.spreadsheets.util.Credentials
 import com.github.riskidentdms.spark.google.spreadsheets.SparkSpreadsheetService.SparkSpreadsheet
 import com.google.api.services.sheets.v4.model.{CellData, ExtendedValue, RowData}
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}

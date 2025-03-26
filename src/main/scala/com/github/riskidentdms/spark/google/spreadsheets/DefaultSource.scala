@@ -13,7 +13,6 @@
  */
 package com.github.riskidentdms.spark.google.spreadsheets
 
-import com.github.riskidentdms.spark.google.spreadsheets.util.Credentials
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, RelationProvider, SchemaRelationProvider}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}

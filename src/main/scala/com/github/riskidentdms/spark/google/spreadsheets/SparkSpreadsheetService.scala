@@ -23,12 +23,13 @@ import java.util.{List => JavaList}
 import scala.collection.JavaConverters._
 import com.google.api.client.json.gson.GsonFactory
 import com.google.auth.http.HttpCredentialsAdapter
+import com.google.auth.oauth2.OAuth2Credentials
 
 import scala.Option.option2Iterable
 import scala.util.Try
 
 object SparkSpreadsheetService {
-  private val APP_NAME = "spark-google-spreadsheets-1.0.0"
+  private val APP_NAME = "spark-google-spreadsheets"
   private val HTTP_TRANSPORT: NetHttpTransport =
     GoogleNetHttpTransport.newTrustedTransport()
   private val JSON_FACTORY: GsonFactory = GsonFactory.getDefaultInstance
@@ -94,10 +95,10 @@ object SparkSpreadsheetService {
     }
   }
 
-  case class SparkSpreadsheetContext(credentials: HttpCredentialsAdapter) {
+  case class SparkSpreadsheetContext(credentials: OAuth2Credentials) {
 
     lazy val service: Sheets =
-      new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credentials)
+      new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, new HttpCredentialsAdapter(credentials))
         .setApplicationName(APP_NAME)
         .build()
 
@@ -267,7 +268,7 @@ object SparkSpreadsheetService {
     * @param credentials
     * @return
     */
-  def apply(credentials: HttpCredentialsAdapter): SparkSpreadsheetContext =
+  def apply(credentials: OAuth2Credentials): SparkSpreadsheetContext =
     SparkSpreadsheetContext(credentials)
 
   /**

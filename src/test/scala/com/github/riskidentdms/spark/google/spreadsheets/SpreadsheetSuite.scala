@@ -14,7 +14,6 @@
 package com.github.riskidentdms.spark.google.spreadsheets
 
 import SparkSpreadsheetService.SparkSpreadsheetContext
-import com.github.riskidentdms.spark.google.spreadsheets.util.Credentials
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SQLContext, SparkSession}
@@ -107,9 +106,9 @@ class SpreadsheetSuite extends AnyFlatSpec with BeforeAndAfter {
 
   trait PersonData {
     val personsSchema = StructType(List(
-      StructField("id", IntegerType, true),
-      StructField("firstname", StringType, true),
-      StructField("lastname", StringType, true)))
+      StructField("id", IntegerType, nullable = true),
+      StructField("firstname", StringType, nullable = true),
+      StructField("lastname", StringType, nullable = true)))
   }
 
   trait PersonDataFrame extends PersonData {
@@ -139,7 +138,6 @@ class SpreadsheetSuite extends AnyFlatSpec with BeforeAndAfter {
   behavior of "A DataFrame"
 
   it should "be saved as a sheet" in new PersonDataFrame {
-    import com.github.riskidentdms.spark.google.spreadsheets._
     withEmptyWorksheet { workSheetName =>
       personsDF.write
         .option("credentialsJson", oAuthJson)
@@ -238,7 +236,7 @@ class SpreadsheetSuite extends AnyFlatSpec with BeforeAndAfter {
   }
 
   trait UnderscoreDataFrame {
-    val aSchema: StructType = StructType(List(StructField("foo_bar", IntegerType, true)))
+    val aSchema: StructType = StructType(List(StructField("foo_bar", IntegerType, nullable = true)))
     val aRows = Seq(Row(1), Row(2), Row(3))
     val aRDD: RDD[Row] = sqlContext.sparkContext.parallelize(aRows)
     val aDF: DataFrame = sqlContext.createDataFrame(aRDD, aSchema)
